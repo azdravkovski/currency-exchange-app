@@ -66,25 +66,31 @@ $(document).ready(function () {
 		});
 	}
 
-
 	//Swap currencies
 	function swapCurrencies() {
 		var temp = $("#base").val();
 		$("#base").val($("#target").val());
 		$("#target").val(temp);
+		var base = $('#base option:selected').text();
+		var url = 'https://api.fixer.io/latest?base=' + base;
+
+		updateCurrencyCalculation(url);
+
 	}
+	
 	$('#swap').on('click', swapCurrencies);
 
-	//====== Fetch historical exchange rate for 30 days ======// 
+	//====== Fetch historical exchange rate ======// 
 	function fetchHistoricalRate(baseInput, targetInput) {
 
 		var baseTarget = baseInput + '/' + targetInput;
 		
-		$('#chart').html('<p id="loading">Fetching data...</p>');
+		$('#chart').html('<p id="loading">Fetching data... This may take a while.</p>');
 		
 		$.ajax({
 			url: 'http://www.cislondon.co.uk/fx/candlestick.php?key=Iv10gxvX1uo9Qt&symbol=' + baseInput + targetInput,
 			success: function (response) {
+				//Optional variables for several time queries
 				var responseFull = response.LT30Arr.slice(1);
 				var responseYear = response.LT30Arr.slice(1).slice(-365);
 				var responseHalfYear = response.LT30Arr.slice(1).slice(-180);
@@ -154,13 +160,6 @@ function renderGraph(name) {
 		element: document.getElementById('legend')
 
 	});
-
-//	var shelving = new Rickshaw.Graph.Behavior.Series.Toggle({
-//		graph: graph,
-//		legend: legend
-//	});
-
-
 
 	axes.render();
 
