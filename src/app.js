@@ -22,31 +22,26 @@ $(document).ready(function () {
 	});
 
 	//return selected base currency
-	$('#curr1').on('input', function () {
+	$('#curr1').on('input', helperUpdate);
+
+	function helperUpdate() {
 		var base = $('#base option:selected').text();
 		var url = 'https://api.fixer.io/latest?base=' + base;
 
 		updateCurrencyCalculation(url);
 
-	});
+	}
 
 	//Clear input fields when changing currency
+	$('#base').on('change', clearInput);
+
 	function clearInput() {
-		$('#base').on('change', function () {
-			$('#curr1').val('');
-			$('#curr2').val('');
-		});
-	}
-	clearInput();
+		$('#curr1').val('');
+		$('#curr2').val('');
+	};
 
 	//Event recognition for target currency option change
-	$('select#target').on('change', function () {
-		var base = $('#base option:selected').text();
-		var url = 'https://api.fixer.io/latest?base=' + base;
-
-		updateCurrencyCalculation(url);
-
-	});
+	$('select#target').on('change', helperUpdate);
 
 	function updateCurrencyCalculation(url) {
 		//Second AJAX call sets base currency
@@ -71,22 +66,19 @@ $(document).ready(function () {
 		var temp = $("#base").val();
 		$("#base").val($("#target").val());
 		$("#target").val(temp);
-		var base = $('#base option:selected').text();
-		var url = 'https://api.fixer.io/latest?base=' + base;
 
-		updateCurrencyCalculation(url);
-
+		helperUpdate();
 	}
-	
+
 	$('#swap').on('click', swapCurrencies);
 
 	//====== Fetch historical exchange rate ======// 
 	function fetchHistoricalRate(baseInput, targetInput) {
 
 		var baseTarget = baseInput + '/' + targetInput;
-		
+
 		$('#chart').html('<p id="loading">Fetching data... This may take a while.</p>');
-		
+
 		$.ajax({
 			url: 'http://www.cislondon.co.uk/fx/candlestick.php?key=Iv10gxvX1uo9Qt&symbol=' + baseInput + targetInput,
 			success: function (response) {
@@ -97,14 +89,14 @@ $(document).ready(function () {
 				var responseMonth = response.LT30Arr.slice(1).slice(-30)
 				graphData = responseYear.map(function (day) {
 					return {
-						x: parseInt(Date.parse(day[0])/1000),
+						x: parseInt(Date.parse(day[0]) / 1000),
 						y: day[1]
 					};
 				});
-				
+
 				$('#loading').hide();
 				renderGraph(baseTarget);
-				
+
 				console.log(baseInput + targetInput);
 			},
 			dataType: 'jsonp'
@@ -116,7 +108,7 @@ $(document).ready(function () {
 		var base = $('#base option:selected').text();
 		var target = $('#target option:selected').text();
 		$('#chart').empty();
-		$('#legend').empty();		
+		$('#legend').empty();
 		fetchHistoricalRate(base, target);
 	});
 
@@ -143,7 +135,7 @@ function renderGraph(name) {
 	});
 	var time = new Rickshaw.Fixtures.Time();
 	var years = time.unit('years');
-	
+
 	var axes = new Rickshaw.Graph.Axis.Time({
 		graph: graph,
 		timeUnit: years
